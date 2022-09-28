@@ -547,7 +547,8 @@ class ContestStanding extends React.Component {
                   let userFilteredRank = undefined;
                   if (isFilterEnable) {
                     const orgName = this.state.userMapping[user].organization;
-                    const isShow = filteredOrg.includes(orgName) || isFavorite;
+                    const isShow = (filteredOrg.includes(orgName) && isOrgFilterEnable) || 
+                      (isFavorite && isFavoriteOnly) ;
                     if (isShow) userFilteredRank = baseFilteredRank++;
                     else return <></>;
                   }

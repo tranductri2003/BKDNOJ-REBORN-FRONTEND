@@ -158,7 +158,7 @@ class ContestListItem extends React.Component {
           <Link to={`/contest/${ckey}`}>{ckey}</Link>
         </td>
         <td
-          className="text-truncate"
+          className=""
           style={{minWidth: "200px", maxWidth: "300px"}}
         >
           <Link to={`/contest/${ckey}`}>{cname}</Link>
