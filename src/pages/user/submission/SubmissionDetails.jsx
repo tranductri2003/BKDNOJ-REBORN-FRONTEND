@@ -281,8 +281,8 @@ class SubmissionDetails extends React.Component {
                   <Col>
                     <span>
                       <strong>Author:</strong>
-                      <Link to={`/user/${data.user.user.username}`}>
-                        {data.user.user.username}
+                      <Link to={`/user/${data.user.username}`}>
+                        {data.user.username}
                       </Link>
                     </span>
                   </Col>
@@ -352,12 +352,19 @@ class SubmissionDetails extends React.Component {
                 </Row>
                 <Row>
                   <Col>
-                    <CodeEditor
-                      code={data.source}
-                      onCodeChange={() => {}}
-                      ace={data.language_ace}
-                      readOnly={true}
-                    />
+                    {
+                      typeof(data.source) === 'string' && <CodeEditor
+                        code={data.source}
+                        onCodeChange={() => {}}
+                        ace={data.language_ace}
+                        readOnly={true}
+                      />
+                    }{
+                      typeof(data.source) !== 'string' && <div className="w-100 flex-center border" style={{height: "50px"}}>
+                        <VscError color="red"/>
+                        <span className="ml-1"> Not allowed </span>
+                      </div>
+                    }
                   </Col>
                 </Row>
               </div>
@@ -367,13 +374,16 @@ class SubmissionDetails extends React.Component {
                   <Col>
                     <Table responsive size="xs" striped>
                       <tbody>
-                        {data.test_cases.map(test_case => (
-                          <SubmissionTestCase
-                            key={test_case.id}
-                            data={test_case}
-                            problem={data.problem}
-                          />
-                        ))}
+                        {!!data.test_cases && <>
+                          {data.test_cases.map(test_case => (
+                            <SubmissionTestCase
+                              key={test_case.id}
+                              data={test_case}
+                              problem={data.problem}
+                            />
+                          ))}
+                        </>}
+                        {!data.test_cases && <>Not available to view.</>}
                       </tbody>
                     </Table>
                   </Col>

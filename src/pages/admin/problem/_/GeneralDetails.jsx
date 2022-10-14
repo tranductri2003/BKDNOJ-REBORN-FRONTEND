@@ -74,8 +74,6 @@ class GeneralDetails extends React.Component {
     delete sendData.allowed_languages;
     let reqs = [];
 
-    console.log(sendData);
-
     reqs.push(
       problemAPI.adminEditProblemDetails({
         shortname: this.props.shortname,
@@ -391,7 +389,7 @@ class GeneralDetails extends React.Component {
               <Row>
                 <Form.Label column="sm" lg={4}>
                   {" "}
-                  Chính sách xem chi tiết Submission{" "}
+                  Chính sách xem mã nguồn của Submission{" "}
                 </Form.Label>
                 <Col>
                   <Form.Select
@@ -405,24 +403,24 @@ class GeneralDetails extends React.Component {
                     <option value="FOLLOW">
                       Default (Chỉ thấy của bản thân)
                     </option>
-                    <option value="ALWAYS">User thấy tất cả Submission</option>
+                    <option value="ALWAYS">User thấy tất cả source code</option>
                     <option value="SOLVED">
-                      User chỉ thấy Sub bản thân, nếu giải được sẽ thấy Sub
-                      người khác.
+                      User chỉ thấy source code của bản thân, nếu giải được sẽ thấy
+                      được của người khác.
                     </option>
                     <option value="ONLY_OWN">
-                      User chỉ thấy Sub của bản thân
+                      User chỉ thấy source code của bản thân
                     </option>
                     <option value="HIDDEN">
-                      Không cho phép xem chi tiết Sub
+                      Không cho phép xem source code
                     </option>
                   </Form.Select>
                 </Col>
 
                 <Col xl={12}>
                   <sub>
-                    Chính sách hiển thị chi tiết Submission của Problem này chỉ
-                    có tác dụng với các User mà có quyền view problem.
+                    Chính sách hiển thị chi tiết của Problem này chỉ
+                    có tác dụng với các User mà <strong>chỉ có quyền view</strong> problem.
                   </sub>
                 </Col>
               </Row>

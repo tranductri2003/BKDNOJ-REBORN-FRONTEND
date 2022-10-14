@@ -10,12 +10,13 @@ import {
   FaAlignJustify,
   FaRegFilePdf,
 } from "react-icons/fa";
+import { VscError } from "react-icons/vsc";
 
 import PDFViewer from "components/PDFViewer/PDFViewer";
 
 import contestAPI from "api/contest";
 import problemAPI from "api/problem";
-import {SpinLoader, ErrorBox, RichTextEditor} from "components";
+import {SpinLoader, RichTextEditor} from "components";
 import {withParams} from "helpers/react-router";
 import {setTitle} from "helpers/setTitle";
 
@@ -187,8 +188,7 @@ class ProblemDetails extends React.Component {
           {loaded && errors && (
             <>
               <div className="flex-center-col" style={{height: "100px"}}>
-                <ErrorBox errors={errors} />
-                {/* <VscError size={30} color="red"/> */}
+                <VscError size={30} color="red"/>
               </div>
             </>
           )}

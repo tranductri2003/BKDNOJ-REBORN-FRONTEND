@@ -37,7 +37,7 @@ const LANGUAGES = [
     name: "Java",
   },
   {
-    value: "Pascal",
+    value: "pas",
     name: "Pascal",
   },
   {

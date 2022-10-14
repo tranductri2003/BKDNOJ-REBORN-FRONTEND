@@ -58,7 +58,7 @@ export default class ListSidebar extends React.Component {
     return (
       <div className="list-sidebar-wrapper">
         <Row>
-          <div className="d-block d-md-none">
+          <div className="d-block d-lg-none">
             <OutsideAlerter
               isDetecting={this.state.offcanvasShow}
               outsideClickHandler={() => this.close()}
@@ -70,13 +70,13 @@ export default class ListSidebar extends React.Component {
             </OutsideAlerter>
           </div>
 
-          <Col md={8}>
+          <Col lg={8}>
             <div className="offcanvas-menu" id="offcanvas-menu">
               {mainContent}
 
               <div className="offcanvasOpenBtn-wrapper">
                 <Button
-                  className="offcanvasOpenBtn btn-dark d-block d-md-none"
+                  className="offcanvasOpenBtn btn-dark d-block d-lg-none"
                   onClick={() => this.toggle()}
                 >
                   <BiArrowFromRight />
@@ -85,7 +85,7 @@ export default class ListSidebar extends React.Component {
             </div>
           </Col>
 
-          <Col md={4} className="side-bar center d-none d-md-flex">
+          <Col lg={4} className="side-bar center d-none d-lg-flex">
             {sideComponents.map((comp, indx) => (
               <div key={`side-component-${indx}`} className="mb-2">
                 <div className="side-component">{comp}</div>
