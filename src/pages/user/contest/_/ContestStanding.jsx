@@ -30,6 +30,7 @@ import ContestContext from "context/ContestContext";
 // Styles
 import "./ContestStanding.scss";
 import "styles/Ratings.scss";
+import { addClass } from "helpers/dom_functions";
 
 const __STANDING_POLL_DELAY = 5000;
 const __STANDING_HIGHLIGHT_TIME = 5000;
@@ -47,6 +48,12 @@ const getClassNameFromPoint = (point, maxPoint) => {
   }
   return ptsClsName;
 };
+
+const getStandingCellKey = (username, problem_code) => {
+  if (!username) username = ""
+  if (!problem_code) problem_code = ""
+  return `standing-cell-${username}-${problem_code.toLowerCase()}`
+}
 
 class StandingItem extends React.Component {
   render() {
@@ -81,12 +88,18 @@ class StandingItem extends React.Component {
 
         const ptsClsName = getClassNameFromPoint(points, problemMaxPoints);
 
+        let displaySubTime = sub_time;
+        if (this.props.contest.format_name === "icpc") displaySubTime = Math.floor(sub_time/60)
+        else
+        if (this.props.contest.format_name === "ioi") displaySubTime = Math.floor(sub_time)
+
         best[i] = (
           <div
             className={
               `flex-center-col points-container ` +
               (tries_after_frozen > 0 ? "frozen" : ptsClsName)
             }
+            id={getStandingCellKey(user, probMapping[k].shortname)}
             onClick={() =>
               this.props.setSubListData({
                 user,
@@ -107,7 +120,7 @@ class StandingItem extends React.Component {
               )}
             </div>
 
-            <div className="p-best-time text-truncate time">{sub_time}</div>
+            <div className="p-best-time text-truncate time">{displaySubTime}</div>
           </div>
         );
       });
@@ -219,7 +232,6 @@ class ContestStanding extends React.Component {
 
       isPollingOn: true,
       isPolling: false,
-
       // SubList Modal
       subListShow: false,
       subListData: null,
@@ -252,6 +264,8 @@ class ContestStanding extends React.Component {
       isPolling: false,
 
       standing: res.data.results,
+      bestSolutions: {},
+
       problems: res.data.problems,
       organizations: res.data.organizations,
 
@@ -264,25 +278,61 @@ class ContestStanding extends React.Component {
     });
 
     // Contest - Problems mapping
-    let mapping = {}; // mapping here is a list of problems in the contest -> their id
+    let problemMap = {}; // problemMap here is a list of problems in the contest -> their id
     let uniq = 0;
     res.data.problems.forEach(prob => {
-      if (mapping[prob.id]) return;
-      mapping[prob.id] = {
+      if (problemMap[prob.id]) return;
+      problemMap[prob.id] = {
         pos: uniq,
         points: prob.points,
         shortname: prob.shortname,
       };
       uniq++;
     });
-    this.setState({probId2idx: mapping});
+    this.setState({probId2idx: problemMap});
 
     // Contest - Organization mapping
-    mapping = {}; // mapping here is a list of problems in the contest -> their id
+    let organizationMap = {}; // organizationMap here is a list of problems in the contest -> their id
     res.data.organizations.forEach(org => {
-      mapping[org.slug] = org;
+      organizationMap[org.slug] = org;
     });
-    this.setState({orgMapping: mapping});
+    this.setState({orgMapping: organizationMap});
+
+    // Best Solutions -
+    let bestSolutionMap = {}
+    res.data.results.forEach(row => {
+      try {
+        let data = JSON.parse(row.format_data);
+        const user = row.user;
+
+        Object.keys(data).forEach(probId => {
+          const prob = problemMap[probId]
+          if (!prob) return;
+          const probCode = prob.shortname;
+          const {sub_time, points} = data[probId];
+
+          let shouldUpdate = false;
+          if (points === 0) return;
+          if (!bestSolutionMap[probCode]) shouldUpdate = true
+          else {
+            if (points > 0 && bestSolutionMap[probCode].points < points) shouldUpdate = true;
+            else
+            if (
+              bestSolutionMap[probCode].points === points && 
+              bestSolutionMap[probCode].sub_time > sub_time
+            ) shouldUpdate = true
+          }
+          if (shouldUpdate) 
+            bestSolutionMap = {
+              ...bestSolutionMap, 
+              [probCode]: {user, points, sub_time}
+            }
+        })
+      } catch (err) {
+        console.log(err)
+      }
+    })
+    this.setState({bestSolutions: bestSolutionMap})
   }
 
   async refetch(polling = false) {
@@ -345,7 +395,6 @@ class ContestStanding extends React.Component {
       }, __STANDING_HIGHLIGHT_TIME);
     });
   }
-
   scrollToCurrentStanding(username) {
     const userDiv = document.getElementById(`standing-${username}`);
     if (!userDiv) return;
@@ -376,7 +425,9 @@ class ContestStanding extends React.Component {
         this.refetch();
       });
     }
+    this.highlightBestSolutions();
 
+    // TODO: Stop fetching if contest is over?
     let pollDelay = this.state.scoreboardCache * 1000 || __STANDING_POLL_DELAY;
     pollDelay = Math.max(pollDelay, __STANDING_POLL_DELAY);
     clearInterval(this.timer);
@@ -385,6 +436,19 @@ class ContestStanding extends React.Component {
 
   componentWillUnmount() {
     clearInterval(this.timer);
+  }
+
+
+  highlightBestSolutions() {
+    const bestSolutions = this.state.bestSolutions;
+    if (!bestSolutions) return;
+    Object.keys(bestSolutions).forEach(probCode => {
+      const {user, points, sub_time} = bestSolutions[probCode];
+      const bestCellId = getStandingCellKey(user, probCode);
+      const elem = document.getElementById(bestCellId);
+      if (!elem) return;
+      addClass(elem, "fastest");
+    })
   }
 
   render() {
@@ -535,8 +599,8 @@ class ContestStanding extends React.Component {
                     })}
                 </tr>
               </thead>
-              <tbody>
-                {standing.map((part, idx) => {
+              <tbody>{
+                standing.map((part, idx) => {
                   const contestId = this.state.contest?.key;
                   const standingFilter = this.props.standingFilter[contestId];
 
@@ -579,10 +643,13 @@ class ContestStanding extends React.Component {
                       contestId={contestId}
                       {...part}
                       setSubListData={d => this.setSubListData(d)}
+
+                      contest={this.context.contest}
+                      bestSolutions={this.bestSolutions}
+                      setBestSolutions={newBest => this.setBestSolutions(newBest)}
                     />
-                  );
-                })}
-              </tbody>
+                  )
+              })}</tbody>
             </Table>
             <SubListModal
               show={this.state.subListShow}
@@ -595,7 +662,7 @@ class ContestStanding extends React.Component {
           </>
         )}
       </div>
-    );
+    )
   }
 }
 
