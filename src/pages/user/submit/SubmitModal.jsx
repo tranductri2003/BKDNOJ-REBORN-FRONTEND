@@ -20,11 +20,12 @@ class SubmitModalResult extends React.Component {
     this.state = {
       subId: props.subId,
       data: {status: "...", test_cases: []},
+      couldNotFetch: false,
     };
   }
 
   pollResult() {
-    if (shouldStopPolling(this.state.data.status)) {
+    if (this.state.couldNotFetch || shouldStopPolling(this.state.data.status)) {
       clearInterval(this.timer);
       return;
     }
@@ -35,6 +36,7 @@ class SubmitModalResult extends React.Component {
       })
       .catch(err => {
         console.log("Error when Polling", err);
+        this.setState({ couldNotFetch: true })
       });
   }
 
@@ -64,7 +66,10 @@ class SubmitModalResult extends React.Component {
     const {subErrors} = this.props;
     if (subErrors) return <div className="note">{subErrors}</div>;
 
-    const {subId, data} = this.state;
+    const {subId, data, couldNotFetch} = this.state;
+    if (couldNotFetch)
+      return <div className="note">Submitted.</div>;
+
     if (subId === null || data.status === "...")
       return <div className="note loading_3dot">Submitting</div>;
 
