@@ -10,8 +10,8 @@ const getPastContests = (params) => {
     return axiosClient.get('/past-contest/', (params && { params: {...params} }));
 }
 
-const getContest = ({ key }) => {
-    return axiosClient.get(`/contest/${key}/`);
+const getContest = ({ key, params }) => {
+    return axiosClient.get(`/contest/${key}/`, (params && { params: {...params} }));
 }
 const joinContest = ({ key }) => {
     return axiosClient.post(`/contest/${key}/participate/`);

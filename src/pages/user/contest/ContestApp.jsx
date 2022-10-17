@@ -39,6 +39,8 @@ import {addContest} from "redux/StandingFilter/action";
   [                       ]
 
 */
+const DESCRIPTION_POLL_DURATION_MS = 60 * 1000;
+
 class ContestApp extends React.Component {
   constructor(props) {
     super(props);
@@ -71,6 +73,26 @@ class ContestApp extends React.Component {
     }
   }
 
+  pollDescription() {
+    contestAPI.getContest({key: this.state.contest_key, params: {"description": 1}})
+    .then(res => {
+      const data = res.data;
+      if (data.updated_recently) {
+        const contest = this.state.contest;
+        if (data.description !== contest.description) {
+          this.setState({ contest: {...contest, description: data.description} })
+          alert("Có thông báo mới đến các đội, xin hãy xem ở mục About.")
+        }
+      }
+    })
+    .catch(err => {
+      clearInterval(this.pollDescIntr)
+    })
+  }
+  componentWillUnmount(){
+    clearInterval(this.pollDescIntr)
+  }
+
   componentDidMount() {
     contestAPI
       .getContest({key: this.state.contest_key})
@@ -85,6 +107,8 @@ class ContestApp extends React.Component {
         if (!Object.hasOwn(this.props.standingFilter, contestId)) {
           this.props.addContestFilter(contestId);
         }
+        clearInterval(this.pollDescIntr)
+        this.pollDescIntr = setInterval(() => this.pollDescription(), DESCRIPTION_POLL_DURATION_MS)
       })
       .catch(err => {
         this.setState({
