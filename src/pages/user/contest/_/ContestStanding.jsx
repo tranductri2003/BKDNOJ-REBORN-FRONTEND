@@ -121,7 +121,12 @@ class StandingItem extends React.Component {
       showCumtime = cumtime;
     }
 
-    const org = this.props.orgOverride || orgMapping[userMapping[user].organization]
+    let org = ""
+    try {
+      org = this.props.orgOverride || (orgMapping[userMapping[user].organization])
+    } catch (err) {
+      // console.log(err)
+    }
 
     return (
       <tr id={`standing-${user}`} className={this.props.className}>
@@ -303,7 +308,7 @@ class ContestStanding extends React.Component {
             this.setState({userMapping});
           })
           .catch(err => {
-            console.log("Cannot fetch participants profile. ", err);
+            console.log("Cannot retrieve participants' profile. Maybe F5 after 1 minute to retry again.", err);
           })
       );
     }
