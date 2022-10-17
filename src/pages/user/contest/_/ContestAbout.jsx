@@ -6,6 +6,7 @@ import {toast} from "react-toastify";
 import {RichTextEditor} from "components";
 import contestAPI from "api/contest";
 import {setTitle} from "helpers/setTitle";
+import {secondsToHHMMSS} from "helpers/durationFormatter";
 
 // Contexts
 import ContestContext from "context/ContestContext";
@@ -56,27 +57,24 @@ const ContestInfo = () => {
   const contestLength = (endTime - startTime) / 1000;
   let contestLengthString = "";
   if (contestLength > 0) {
-    const hours = Math.floor(contestLength / 3600);
-    const minutes = Math.floor((contestLength - hours * 3600) / 60);
-    const seconds = contestLength - hours * 3600 - minutes * 60;
-    contestLengthString = `${hours}h:${minutes}m:${seconds}s`;
+    contestLengthString = secondsToHHMMSS(contestLength)
   }
 
   return (
     <div className="row px-2 pt-2">
       <div className="contest-info col-8">
         <Badge
-          bg="warning"
+          bg="info"
           title="Number of participants"
           data-toogle="tooltip"
         >
           {`${contest?.user_count} participants`}
         </Badge>
-        <Badge bg="danger">{contest.is_rated ? "rated" : "unrated"}</Badge>
-        <Badge bg="success" title="Contest's duration" data-toogle="tooltip">
-          {`Duration: ${contestLengthString}`}
+        <Badge bg="info" title="Contest's duration" data-toogle="tooltip">
+          {`duration ${contestLengthString}`}
         </Badge>
-        <Badge bg="info" title="Contest's type" data-toogle="tooltip">
+        <Badge bg={contest.is_rated ? "danger" : "success"}>{contest.is_rated ? "rated" : "unrated"}</Badge>
+        <Badge bg={contest.format_name === "icpc" ? "danger" : "warning"} title="Contest format" data-toogle="tooltip">
           {contest.format_name}
         </Badge>
       </div>

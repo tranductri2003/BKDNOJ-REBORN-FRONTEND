@@ -4,8 +4,10 @@ export function getDuration(t1, t2) {
     else st1 = new Date(t1)
     if (t2 instanceof Date) st2 = t2;
     else st2 = new Date(t2)
-
     let seconds = Math.floor( (st2 - st1)/1000 );
+    return secondsToHHMMSS(seconds)
+}
+export function secondsToHHMMSS(seconds) {
     let mm = Math.floor(seconds / 60);
     let ss = (seconds % 60);
     let hh = Math.floor(mm / 60);
