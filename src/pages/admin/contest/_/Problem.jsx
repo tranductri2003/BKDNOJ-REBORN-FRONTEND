@@ -176,7 +176,7 @@ class Problem extends React.Component {
         });
       })
       .catch(err => {
-        console.log(err);
+        // console.log(err);
         this.setState({
           loaded: true,
           errors: [err.response.detail],
@@ -242,7 +242,7 @@ class Problem extends React.Component {
           this.refetch();
         })
         .catch(err => {
-          console.log(err);
+          // console.log(err);
           this.setState({errors: err.response.data});
         });
   }

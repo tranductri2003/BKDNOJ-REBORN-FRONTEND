@@ -142,7 +142,7 @@ const JoinContestBtn = () => {
       })
       .finally(() => {
         // TODO: reload page
-        console.log("done");
+        // console.log("done");
       });
   };
 

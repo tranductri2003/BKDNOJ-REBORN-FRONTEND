@@ -240,7 +240,7 @@ class Participation extends React.Component {
         });
       })
       .catch(err => {
-        console.log(err);
+        // console.log(err);
         this.setState({
           loaded: true,
           errors: ["Cannot fetch Participations for this contest."],

@@ -9,7 +9,7 @@ export default class ClassicPagination extends React.Component {
       currPage: (this.props.currPage && 1),
       count: (this.props.count && 0),
     }
-    console.log(this.props)
+    // console.log(this.props)
   }
 
   render() {

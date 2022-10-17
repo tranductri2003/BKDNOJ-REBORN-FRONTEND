@@ -54,7 +54,7 @@ class UserProfile extends React.Component {
               loaded: true,
               errors: {errors: err.response.data || ["Cannot authenticate."]},
             });
-            console.log(err);
+            // console.log(err);
           }),
       1000
     );

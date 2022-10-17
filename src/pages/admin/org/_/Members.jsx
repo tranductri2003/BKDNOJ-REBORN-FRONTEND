@@ -62,7 +62,7 @@ class Members extends React.Component {
         });
       })
       .catch(err => {
-        console.log(err);
+        // console.log(err);
         this.setState({
           loaded: true,
           errors: err.response.data || ["Cannot get members."],

@@ -7,7 +7,7 @@ import './Submit.scss';
 export default class Submit extends React.Component {
   constructor(props) {
     super(props);
-    console.log(props);
+    // console.log(props);
   }
 
   render() {

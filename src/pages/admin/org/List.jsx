@@ -138,7 +138,7 @@ class OrgListWrapper extends React.Component {
         });
       })
       .catch(err => {
-        console.log(err);
+        // console.log(err);
         this.setState({
           loaded: true,
           errors: ["Cannot fetch orgs. Please retry again."],

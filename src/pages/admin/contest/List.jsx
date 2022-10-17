@@ -145,7 +145,7 @@ class AdminContestList extends React.Component {
         });
       })
       .catch(err => {
-        console.log(err);
+        // console.log(err);
         this.setState({
           loaded: true,
           errors: ["Cannot fetch contests. Please retry again."],
@@ -191,7 +191,7 @@ class AdminContestList extends React.Component {
 
       Promise.all(reqs)
         .then(res => {
-          console.log(res);
+          // console.log(res);
           this.callApi({page: this.state.currPage});
         })
         .catch(err => {

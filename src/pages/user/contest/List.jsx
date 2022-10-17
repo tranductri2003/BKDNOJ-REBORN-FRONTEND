@@ -100,7 +100,7 @@ class ContestListItem extends React.Component {
 
   isInContest(ckey) {
     const {profile} = this.props;
-    console.log(profile);
+    // console.log(profile);
     if (!profile || !profile.current_contest) return false;
     if (profile.current_contest.contest.key !== ckey) return false;
     return true;

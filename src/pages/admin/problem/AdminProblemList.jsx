@@ -419,7 +419,7 @@ class NewProblemModal extends React.Component {
         this.props.navigate(`/admin/problem/${res.data.shortname}`);
       })
       .catch(err => {
-        console.log(err);
+        // console.log(err);
         this.setState({errors: err.response.data});
       });
   }
