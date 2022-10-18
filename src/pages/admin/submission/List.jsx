@@ -146,7 +146,7 @@ class AdminSubmissionList extends React.Component {
       });
 
       Promise.all(reqs)
-        .then(res => {
+        .then(_res => {
           // console.log(res);
           this.callApi({page: this.state.currPage});
         })

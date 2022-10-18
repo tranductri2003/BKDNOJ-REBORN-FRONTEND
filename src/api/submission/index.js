@@ -19,10 +19,10 @@ const adminDeleteSubmission = ({id}) => {
     return axiosClient.delete(`/submission/${id}/`);
 }
 const getSubmissionResult = ({id}) => {
-    return axiosClient.get(`/submission/${id}/testcase`);
+    return axiosClient.get(`/submission/${id}/testcase/`);
 }
 const getSubmissionResultCase = ({id, case_num}) => {
-    return axiosClient.get(`/submission/${id}/testcase/${case_num}`);
+    return axiosClient.get(`/submission/${id}/testcase/${case_num}/`);
 }
 
 const submissionApi = {

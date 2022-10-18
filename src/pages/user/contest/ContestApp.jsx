@@ -85,7 +85,7 @@ class ContestApp extends React.Component {
         }
       }
     })
-    .catch(err => {
+    .catch(_err => {
       clearInterval(this.pollDescIntr)
     })
   }

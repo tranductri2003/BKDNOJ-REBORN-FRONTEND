@@ -443,7 +443,7 @@ class ContestStanding extends React.Component {
     const bestSolutions = this.state.bestSolutions;
     if (!bestSolutions) return;
     Object.keys(bestSolutions).forEach(probCode => {
-      const {user, points, sub_time} = bestSolutions[probCode];
+      const {user} = bestSolutions[probCode];
       const bestCellId = getStandingCellKey(user, probCode);
       const elem = document.getElementById(bestCellId);
       if (!elem) return;

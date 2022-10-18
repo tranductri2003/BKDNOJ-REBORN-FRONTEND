@@ -137,7 +137,7 @@ class OrgListWrapper extends React.Component {
           loaded: true,
         });
       })
-      .catch(err => {
+      .catch(_err => {
         // console.log(err);
         this.setState({
           loaded: true,

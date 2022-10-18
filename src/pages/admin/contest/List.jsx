@@ -144,7 +144,7 @@ class AdminContestList extends React.Component {
           loaded: true,
         });
       })
-      .catch(err => {
+      .catch(_err => {
         // console.log(err);
         this.setState({
           loaded: true,
@@ -190,7 +190,7 @@ class AdminContestList extends React.Component {
       });
 
       Promise.all(reqs)
-        .then(res => {
+        .then(_res => {
           // console.log(res);
           this.callApi({page: this.state.currPage});
         })
