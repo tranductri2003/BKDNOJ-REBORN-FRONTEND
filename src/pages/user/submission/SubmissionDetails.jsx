@@ -2,7 +2,7 @@ import React from "react";
 import {toast} from "react-toastify";
 import {connect} from "react-redux";
 import {Link, Navigate} from "react-router-dom";
-import {Row, Col, Table} from "react-bootstrap";
+import {Row, Col} from "react-bootstrap";
 
 // Assets
 import {FaWrench, FaSyncAlt} from "react-icons/fa";
@@ -14,6 +14,7 @@ import submissionAPI from "api/submission";
 // Componenets
 import {SpinLoader} from "components";
 import {CodeEditor} from "components/CodeEditor";
+import {SubmissionTestCaseTable} from "./components";
 
 // Context
 import ContestContext from "context/ContestContext";
@@ -27,41 +28,8 @@ import {shouldStopPolling} from "constants/statusFilter";
 
 import "./SubmissionDetails.scss";
 
-const __SUBMISSION_DETAIL_POLL_DELAY = 3000;
+const __SUBMISSION_DETAIL_POLL_DELAY = 5000;
 const __SUBMISSION_MAX_POLL_DURATION = 30000; // ms
-
-class SubmissionTestCase extends React.Component {
-  render() {
-    const data = this.props.data;
-    const problem = this.props.problem;
-    const maxTime = problem.time_limit;
-
-    return (
-      <tr className="test-case-result">
-        <td>
-          <strong>Case#{data.case}</strong>
-        </td>
-        <td>
-          <span className={`verdict ${data.status.toLowerCase()}`}>
-            <span className={`verdict-wrapper ${data.status.toLowerCase()}`}>
-              <span className="text">{data.status}</span>
-            </span>
-          </span>
-        </td>
-        <td>
-          <span className="time">
-            {data.status === "tle"
-              ? `>${parseTime(maxTime)}`
-              : parseTime(data.time)}
-          </span>
-        </td>
-        <td>
-          <span className="time">{parseMem(data.memory)}</span>
-        </td>
-      </tr>
-    );
-  }
-}
 
 class SubmissionDetails extends React.Component {
   static contextType = ContestContext;
@@ -81,15 +49,14 @@ class SubmissionDetails extends React.Component {
   }
 
   fetch() {
-    const contest = this.context.contest;
-    let params = {};
-    if (contest) params.contest = contest.key;
-
+    this.clearIntervals()
     submissionAPI
-      .getSubmissionDetails({id: this.state.id, params})
+      .getSubmissionDetails({id: this.state.id})
       .then(res => {
         setTitle(`Submission#${res.data.id}`);
-        this.setState({data: res.data});
+        this.setState({data: res.data}, ()=>{
+          this.fetchTestcase()
+        });
       })
       .catch(err => {
         this.setState({
@@ -98,9 +65,48 @@ class SubmissionDetails extends React.Component {
         console.log("Error when Polling", err);
       })
       .finally(() => {
-        this.setState({loaded: true});
+        this.setState({ loaded: true });
       });
   }
+
+  fetchTestcase() {
+    submissionAPI
+      .getSubmissionResult({id: this.state.id})
+      .then(res => {
+        const subData = this.state.data;
+        this.setState({data: {...subData, ...res.data}}, () => {
+          const status = res.data.status;
+          if (!shouldStopPolling(status)) {
+            this.clearIntervals()
+            this.timer = setInterval(
+              () => this.pollResult(),
+              __SUBMISSION_DETAIL_POLL_DELAY
+            );
+            setTimeout(
+              () => this.clearIntervals(),
+              __SUBMISSION_MAX_POLL_DURATION
+            );
+          }
+        });
+      })
+      .catch(_err => {
+        this.clearIntervals()
+      })
+  }
+
+  clearIntervals() {
+    clearInterval(this.timer)
+  }
+
+  pollResult() {
+    if (shouldStopPolling(this.state.data.status) || !!this.state.errors) {
+      if (shouldStopPolling(this.state.data.status)) this.fetch();
+      else clearInterval(this.timer);
+      return;
+    }
+    this.fetchTestcase();
+  }
+
   rejudge() {
     submissionAPI
       .adminRejudgeSubmission({id: this.state.id})
@@ -135,28 +141,10 @@ class SubmissionDetails extends React.Component {
       });
   }
 
-  pollResult() {
-    if (shouldStopPolling(this.state.data.status) || !!this.state.errors) {
-      clearInterval(this.timer);
-      return;
-    }
+  componentDidMount() {
     this.fetch();
   }
 
-  componentDidMount() {
-    this.fetch();
-    if (!shouldStopPolling(this.state.data.status)) {
-      clearInterval(this.timer);
-      this.timer = setInterval(
-        () => this.pollResult(),
-        __SUBMISSION_DETAIL_POLL_DELAY
-      );
-      setTimeout(
-        () => clearInterval(this.timer),
-        __SUBMISSION_MAX_POLL_DURATION
-      );
-    }
-  }
   componentDidUpdate(_prevProps, _prevState) {
     if (this.props.params.id !== this.state.id) {
       this.setState({loaded: false, errors: false});
@@ -165,7 +153,7 @@ class SubmissionDetails extends React.Component {
   }
 
   componentWillUnmount() {
-    clearInterval(this.timer);
+    this.clearIntervals()
   }
 
   render() {
@@ -369,15 +357,15 @@ class SubmissionDetails extends React.Component {
                 </Row>
               </div>
               <div className="test-result info-subsection">
-                <h5>Test Result</h5>
-                <Row>
+                <SubmissionTestCaseTable submissionData={data} />
+                {/* <Row>
                   <Col>
                     <Table responsive size="xs" striped>
                       <tbody>
                         {!!data.test_cases && <>
-                          {data.test_cases.map(test_case => (
+                          {data.test_cases.map((test_case, idx) => (
                             <SubmissionTestCase
-                              key={test_case.id}
+                              key={`sb-tc-${idx}`}
                               data={test_case}
                               problem={data.problem}
                             />
@@ -387,7 +375,7 @@ class SubmissionDetails extends React.Component {
                       </tbody>
                     </Table>
                   </Col>
-                </Row>
+                </Row> */}
               </div>
             </>
           )}
