@@ -358,24 +358,6 @@ class SubmissionDetails extends React.Component {
               </div>
               <div className="test-result info-subsection">
                 <SubmissionTestCaseTable submissionData={data} />
-                {/* <Row>
-                  <Col>
-                    <Table responsive size="xs" striped>
-                      <tbody>
-                        {!!data.test_cases && <>
-                          {data.test_cases.map((test_case, idx) => (
-                            <SubmissionTestCase
-                              key={`sb-tc-${idx}`}
-                              data={test_case}
-                              problem={data.problem}
-                            />
-                          ))}
-                        </>}
-                        {!data.test_cases && <>Not available to view.</>}
-                      </tbody>
-                    </Table>
-                  </Col>
-                </Row> */}
               </div>
             </>
           )}

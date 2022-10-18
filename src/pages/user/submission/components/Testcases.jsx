@@ -7,7 +7,7 @@ import submissionApi from "api/submission";
 import { SpinLoader } from "components";
 
 const SubmissionTestCase = memo(
-  ({data, maxTime, isAllToggle, problemId}) => {
+  ({data, maxTime, problemId}) => {
     const [toggle, setToggle] = useState(false);
     const [testcaseDetail, setTestcaseDetail] = useState(null);
     const [testcaseErr, setTestcaseErr] = useState(null);
@@ -16,10 +16,6 @@ const SubmissionTestCase = memo(
       setToggle(val => !val);
       fetch();
     };
-
-    useEffect(() => {
-      setToggle(isAllToggle);
-    }, [isAllToggle]);
 
     const fetch = () => {
         if (testcaseErr || testcaseDetail) return;
@@ -101,30 +97,22 @@ const SubmissionTestCase = memo(
 );
 
 const SubmissionTestCaseTable = ({submissionData}) => {
-  const [testcase, setTestcase] = useState();
-
-  useEffect(() => {
-    submissionApi.getSubmissionResult({id: submissionData.id}).then(res => {
-      setTestcase(res.data);
-    });
-  }, []);
+  const test_cases = submissionData?.test_cases;
 
   return (
     <div className="test-result info-subsection p-0">
       <div className="d-flex justify-content-between">
         <h5>Test Result</h5>
       </div>
-      {testcase ? (
+      {test_cases ? (
         <Row>
           <Col>
             <Table responsive striped size="xs">
               <tbody>
-                {testcase.test_cases.map(test_case => (
+                {test_cases.map(test_case => (
                   <SubmissionTestCase
-                    isAllToggle={allToggle}
                     key={test_case.id}
                     data={test_case}
-                    canViewTest={testcase.can_view_test_data}
                     problemId={submissionData.id}
                   />
                 ))}
