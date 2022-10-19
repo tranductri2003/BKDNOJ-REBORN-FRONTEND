@@ -329,7 +329,7 @@ class ContestStanding extends React.Component {
             }
         })
       } catch (err) {
-        console.log(err)
+        // console.log(err)
       }
     })
     this.setState({bestSolutions: bestSolutionMap})
