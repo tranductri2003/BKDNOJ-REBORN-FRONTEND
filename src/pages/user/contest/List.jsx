@@ -341,11 +341,10 @@ class NPContestList extends React.Component {
           loaded: true,
         });
       })
-      .catch(() => {
+      .catch(err => {
         this.setState({
           loaded: true,
-          errors:
-            "Cannot fetch contests at the moment. Please retry again after a few minutes.",
+          errors: err.response.data || "Cannot fetch contests at the moment.",
         });
       });
   }
@@ -472,11 +471,10 @@ class ContestList extends React.Component {
           loaded: true,
         });
       })
-      .catch(() => {
+      .catch(err => {
         this.setState({
           loaded: true,
-          errors:
-            "Cannot fetch contests at the moment. Please retry again after a few minutes.",
+          errors: err.response.data || "Cannot fetch contests at the moment.",
         });
       });
   }

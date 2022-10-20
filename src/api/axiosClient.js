@@ -63,6 +63,13 @@ axiosClient.interceptors.response.use(
     // let res = JSON.stringify(error)
     let res = error.response;
     switch (res.status) {
+      case 429:
+        toast.error(
+          "Too many requests. Please try again after 1 minute.",
+          {
+            toastId: "too-many-req",
+          }
+        );
       case 401:
         break;
       case 403:

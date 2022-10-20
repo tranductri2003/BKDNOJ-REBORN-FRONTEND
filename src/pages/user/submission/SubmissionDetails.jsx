@@ -23,6 +23,7 @@ import ContestContext from "context/ContestContext";
 import {withParams} from "helpers/react-router";
 import {parseTime, parseMem} from "helpers/textFormatter";
 import {setTitle} from "helpers/setTitle";
+import {isStaff} from "helpers/auth";
 
 import {shouldStopPolling} from "constants/statusFilter";
 
@@ -62,7 +63,7 @@ class SubmissionDetails extends React.Component {
         this.setState({
           errors: err.response.data || "Cannot Fetch this Submission.",
         });
-        console.log("Error when Polling", err);
+        // console.log("Error when Polling", err);
       })
       .finally(() => {
         this.setState({ loaded: true });
@@ -171,6 +172,11 @@ class SubmissionDetails extends React.Component {
     }
     const polling = loaded && !errors && !shouldStopPolling(data.status);
 
+    let probLinkPrefix = "";
+    if (data.contest_object) {
+      probLinkPrefix = `/contest/${data.contest_object}`
+    }
+
     return (
       <div className="submission-info wrapper-vanilla">
         <h4 className="submission-title">
@@ -204,7 +210,7 @@ class SubmissionDetails extends React.Component {
           )}
           {loaded && !errors && (
             <>
-              {!!this.user && this.user.is_staff && (
+              {isStaff(this.user) && (
                 <>
                   <div className="admin-panel info-subsection">
                     <h5>Staff Panel</h5>
@@ -269,7 +275,7 @@ class SubmissionDetails extends React.Component {
                   <Col>
                     <span>
                       <strong>Author:</strong>
-                      <Link to={`/user/${data.user.username}`}>
+                      <Link to="#">
                         {data.user.username}
                       </Link>
                     </span>
@@ -277,7 +283,7 @@ class SubmissionDetails extends React.Component {
                   <Col>
                     <span>
                       <strong>Problem:</strong>
-                      <Link to={`/problem/${data.problem.shortname}`}>
+                      <Link to={`${probLinkPrefix}/problem/${data.problem.shortname}`}>
                         {data.problem.title}
                       </Link>
                     </span>
@@ -357,7 +363,10 @@ class SubmissionDetails extends React.Component {
                 </Row>
               </div>
               <div className="test-result info-subsection">
-                <SubmissionTestCaseTable submissionData={data} />
+                <SubmissionTestCaseTable 
+                  submissionData={data} 
+                  allowViewTestData={isStaff(this.user)}
+                />
               </div>
             </>
           )}

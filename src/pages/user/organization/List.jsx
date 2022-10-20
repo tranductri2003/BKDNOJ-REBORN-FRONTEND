@@ -155,10 +155,10 @@ class OrgList extends React.Component {
           currPage: params.page,
         });
       })
-      .catch(() => {
+      .catch(err => {
         this.setState({
           loaded: true,
-          errors: "Cannot fetch Organizations at the moment.",
+          errors: err.response.data || "Cannot fetch Organizations at the moment.",
         });
       });
   }

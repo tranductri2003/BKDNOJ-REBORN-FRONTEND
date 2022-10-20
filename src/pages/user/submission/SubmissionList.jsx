@@ -163,7 +163,7 @@ class SubListItem extends React.Component {
             <span className="author text-truncate">
               <em>
                 {`by `}
-                <Link to={`/user/${user}`}>
+                <Link to="#">
                   {yourUsername === user ? (
                     <strong>{user}</strong>
                   ) : (

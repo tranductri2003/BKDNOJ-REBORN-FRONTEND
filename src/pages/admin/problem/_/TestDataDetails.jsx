@@ -47,9 +47,9 @@ export default class TestDataDetails extends React.Component {
               submitting: false,
             });
           })
-          .catch(err => {
+          .catch(_err => {
             this.setState({submitting: false});
-            console.log(err);
+            // console.log(err);
           });
       }
     );

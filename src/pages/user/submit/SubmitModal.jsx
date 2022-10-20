@@ -21,12 +21,14 @@ class SubmitModalResult extends React.Component {
       subId: props.subId,
       data: {status: "...", test_cases: []},
       couldNotFetch: false,
+      isPolling: false,
     };
   }
 
   pollResult() {
     if (this.state.couldNotFetch || shouldStopPolling(this.state.data.status)) {
       clearInterval(this.timer);
+      this.setState({ isPolling: false })
       return;
     }
     submissionApi
@@ -34,9 +36,9 @@ class SubmitModalResult extends React.Component {
       .then(res => {
         this.setState({data: res.data});
       })
-      .catch(err => {
-        console.log("Error when Polling", err);
-        this.setState({ couldNotFetch: true })
+      .catch(_err => {
+        // console.log("Error when Polling", err);
+        this.setState({ couldNotFetch: true, isPolling: false })
       });
   }
 
@@ -50,12 +52,17 @@ class SubmitModalResult extends React.Component {
     if (prevProps.subId !== this.props.subId) {
       this.setState({subId: this.props.subId}, () => {
         clearInterval(this.timer);
+        this.setState({ isPolling: true })
         this.timer = setInterval(
           () => this.pollResult(),
           __SUBMIT_MODAL_POLL_DELAY
         );
+
         setTimeout(
-          () => clearInterval(this.timer),
+          () => {
+            clearInterval(this.timer),
+            this.setState({ isPolling: false })
+          },
           __SUBMIT_MODAL_MAX_POLL_DURATION
         );
       });
@@ -66,12 +73,15 @@ class SubmitModalResult extends React.Component {
     const {subErrors} = this.props;
     if (subErrors) return <div className="note">{subErrors}</div>;
 
-    const {subId, data, couldNotFetch} = this.state;
+    const {subId, data, couldNotFetch, isPolling} = this.state;
     if (couldNotFetch)
-      return <div className="note">Submitted.</div>;
-
+      return <div className="note">Submitted. Check Details for more info.</div>;
+    
     if (subId === null || data.status === "...")
       return <div className="note loading_3dot">Submitting</div>;
+
+    if ((data.status !== "D") && !isPolling)
+      return <div className="note">Submitted. Check Details for more info.</div>;
 
     if (data.status === "QU")
       return <div className="note loading_3dot">Queuing</div>;

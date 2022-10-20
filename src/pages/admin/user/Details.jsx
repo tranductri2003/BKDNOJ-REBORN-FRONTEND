@@ -533,9 +533,7 @@ class UserProfileSection extends React.Component {
                 <Col>
                   <Form.Control
                     size="sm"
-                    type="number"
-                    step="0.01"
-                    min="0.0"
+                    type="text"
                     id="performance_points"
                     onChange={e => this.inputChangeHandler(e)}
                     value={data.performance_points}

@@ -81,7 +81,7 @@ class ContestApp extends React.Component {
         const contest = this.state.contest;
         if (data.description !== contest.description) {
           this.setState({ contest: {...contest, description: data.description} })
-          alert("Có thông báo mới đến các đội, xin hãy xem ở mục About.")
+          window.alert("Có cập nhập mới đến các đội, xin hãy xem ở mục About.")
         }
       }
     })
@@ -98,11 +98,17 @@ class ContestApp extends React.Component {
       .getContest({key: this.state.contest_key})
       .then(res => {
         let contest = res.data;
+
         contest.status = this.getContestStatus(contest);
         this.setState({
           contest: contest,
           loaded: true,
+        }, () => {
+          if (contest.updated_recently) {
+            window.alert("Có cập nhập mới đến các đội, xin hãy xem ở mục About.")
+          }
         });
+
         const contestId = contest.key;
         if (!Object.hasOwn(this.props.standingFilter, contestId)) {
           this.props.addContestFilter(contestId);

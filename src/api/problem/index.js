@@ -9,7 +9,7 @@ const createProblem = ({data}) => {
 };
 
 const getProblemDetails = ({shortname}) => {
-  return axiosClient.get(`/problem/${shortname}`);
+  return axiosClient.get(`/problem/${shortname}/`);
 };
 const submitToProblem = ({shortname, data}) => {
   return axiosClient.post(

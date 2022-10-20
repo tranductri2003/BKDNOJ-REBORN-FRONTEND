@@ -58,7 +58,7 @@ export default class TestcaseDetails extends React.Component {
         </div>
       );
 
-    const testcases = data.test_cases;
+    const testcases = data.test_cases || [];
 
     return (
       <Form id="submissison-testcase-form">

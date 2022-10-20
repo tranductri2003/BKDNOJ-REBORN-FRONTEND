@@ -108,10 +108,10 @@ class JudgeStatuses extends React.Component {
           loaded: true,
         });
       })
-      .catch(() => {
+      .catch(err => {
         this.setState({
           loaded: true,
-          errors: "Cannot fetch judges at the moment. Please retry again.",
+          errors: err.response.data || "Cannot fetch judges. Please retry again.",
         });
       });
   }

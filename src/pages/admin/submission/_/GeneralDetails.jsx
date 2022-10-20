@@ -98,7 +98,7 @@ export default class GeneralDetails extends React.Component {
               size="sm"
               type="text"
               id="author"
-              value={data.user.user.username}
+              value={data.user}
               readOnly
             />
           </Col>

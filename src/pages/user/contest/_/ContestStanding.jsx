@@ -2,6 +2,7 @@ import React from "react";
 import {toast} from "react-toastify";
 import {connect} from "react-redux";
 import {Button, Table} from "react-bootstrap";
+import {Link} from "react-router-dom";
 
 import {SpinLoader, ErrorBox, UserCard} from "components";
 import SubListModal from "./SubListModal";
@@ -467,7 +468,8 @@ class ContestStanding extends React.Component {
     } = this.state;
 
     let baseFilteredRank = 1;
-    const isRegistered = this.context.contest.is_registered;
+    const contest = this.context.contest;
+    const isRegistered = contest.is_registered;
 
     return (
       <div className="wrapper-vanilla p-2" id="contest-standing">
@@ -586,7 +588,9 @@ class ContestStanding extends React.Component {
                             title={probInfo}
                             style={{cursor: "help"}}
                           >
-                            <strong>{prob.label}</strong>
+                            <Link to={`/contest/${contest.key}/problem/${prob.shortname}`} style={{color: "black"}}>
+                              <strong>{prob.label}</strong>
+                            </Link>
                             <div
                               className="border-top "
                               style={{fontSize: "14px", width: "70%"}}

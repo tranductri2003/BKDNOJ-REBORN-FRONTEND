@@ -7,7 +7,7 @@ import submissionApi from "api/submission";
 import { SpinLoader } from "components";
 
 const SubmissionTestCase = memo(
-  ({data, maxTime, problemId}) => {
+  ({data, maxTime, problemId, allowViewTestData}) => {
     const [toggle, setToggle] = useState(false);
     const [testcaseDetail, setTestcaseDetail] = useState(null);
     const [testcaseErr, setTestcaseErr] = useState(null);
@@ -36,9 +36,14 @@ const SubmissionTestCase = memo(
         <tr className="test-case-result border">
           <td className="pl-1 pr-1">
             <span className="d-flex align-self-center">
-                <Link to="#" onClick={() => onToggle()}>
+              {
+                allowViewTestData && <Link to="#" onClick={() => onToggle()}>
                     <strong>Case#{data.case}</strong>
                 </Link>
+              }
+              {
+                !allowViewTestData && <strong>Case#{data.case}</strong>
+              }
             </span>
           </td>
           <td className="pl-1 pr-1">
@@ -96,7 +101,7 @@ const SubmissionTestCase = memo(
   }
 );
 
-const SubmissionTestCaseTable = ({submissionData}) => {
+const SubmissionTestCaseTable = ({submissionData, allowViewTestData}) => {
   const test_cases = submissionData?.test_cases;
 
   return (
@@ -111,9 +116,10 @@ const SubmissionTestCaseTable = ({submissionData}) => {
               <tbody>
                 {test_cases.map(test_case => (
                   <SubmissionTestCase
-                    key={test_case.id}
+                    key={`sb-${submissionData.id}-tc-${test_case.id}`}
                     data={test_case}
                     problemId={submissionData.id}
+                    allowViewTestData={allowViewTestData}
                   />
                 ))}
               </tbody>
