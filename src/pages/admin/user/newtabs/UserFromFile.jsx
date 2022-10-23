@@ -6,15 +6,7 @@ import {VscSave} from "react-icons/vsc";
 import userAPI from "api/user";
 import {FileUploader, SpinLoader, ErrorBox} from "components";
 
-const saveFile = async blob => {
-  const a = document.createElement("a");
-  a.download = "users.csv";
-  a.href = URL.createObjectURL(blob);
-  a.addEventListener("click", () => {
-    setTimeout(() => URL.revokeObjectURL(a.href), 30 * 1000);
-  });
-  a.click();
-};
+import {fileFromBlob} from "helpers/file-utils"
 
 export default class UserFromFile extends React.Component {
   constructor(props) {
@@ -46,7 +38,7 @@ export default class UserFromFile extends React.Component {
         .then(res => {
           toast.success("OK Created");
           const blob = new Blob([res.data], {type: "application/csv"});
-          saveFile(blob);
+          fileFromBlob(blob, "users.csv");
           this.props.redirectTo("/admin/users/");
         })
         .catch(err => {

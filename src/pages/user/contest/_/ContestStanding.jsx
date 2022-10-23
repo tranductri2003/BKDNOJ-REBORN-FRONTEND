@@ -13,6 +13,7 @@ import contestAPI from "api/contest";
 // Helpers
 import {setTitle} from "helpers/setTitle";
 import {getLocalDateWithTimezone} from "helpers/dateFormatter";
+import {fileFromBlob} from "helpers/file-utils";
 
 // Assets
 import top1 from "assets/common/atcoder_top1.png";
@@ -23,7 +24,7 @@ import top100 from "assets/common/atcoder_top100.png";
 import {GiIceCube} from "react-icons/gi";
 import {FaUniversity} from "react-icons/fa";
 import {AiOutlineEye} from "react-icons/ai";
-import {BiTargetLock} from "react-icons/bi";
+import {BiSpreadsheet, BiTargetLock} from "react-icons/bi";
 
 // Contexts
 import ContestContext from "context/ContestContext";
@@ -138,7 +139,7 @@ class StandingItem extends React.Component {
     let org = ""
     try {
       org = this.props.orgOverride || (orgMapping[userMapping[user].organization])
-    } catch (err) {
+    } catch (_err) {
       // console.log(err)
     }
 
@@ -237,6 +238,10 @@ class ContestStanding extends React.Component {
       subListShow: false,
       subListData: null,
       highlightUser: "",
+
+      // Filters
+      filterEnabled: false,
+      filteredRanks: [],
     };
   }
 
@@ -256,6 +261,45 @@ class ContestStanding extends React.Component {
   /* Set viewing mode of scoreboard to Frozen */
   freezingIce() {
     this.setState({iceBroken: false}, () => this.refetch());
+  }
+
+  /* Hide certain rows based on Standing Filters */
+  filterStanding() {
+    const contestId = this.state.contest?.key;
+    const standingFilter = this.props.standingFilter[contestId] || {};
+    const participants = this.state.standing
+
+    const {
+      isOrgFilterEnable,
+      isFavoriteOnly,
+      filteredOrg,
+      favoriteTeams,
+    } = standingFilter;
+
+    const isFilterEnable = isOrgFilterEnable || isFavoriteOnly;
+    let baseFilteredRank = 1;
+
+    let filteredRankOfParticipants = Array(participants.length).fill(0);
+    let filterEn;
+    if (!isFilterEnable) {
+      filterEn = false;
+    } else {
+      filterEn = true;
+      participants.forEach((part, idx) => {
+        const {user} = part;
+        const isFavorite = favoriteTeams.includes(user);
+        const orgName = this.state.userMapping[user].organization;
+        const isShow = (filteredOrg.includes(orgName) && isOrgFilterEnable) || 
+          (isFavorite && isFavoriteOnly) ;
+        if (isShow) {
+          filteredRankOfParticipants[idx] = baseFilteredRank++
+        }
+      })
+    }
+    this.setState({
+      filterEnabled: filterEn,
+      filteredRanks: filteredRankOfParticipants,
+    })
   }
 
   /* Receive results of Contest Standing api and handle */
@@ -329,7 +373,7 @@ class ContestStanding extends React.Component {
               [probCode]: {user, points, sub_time}
             }
         })
-      } catch (err) {
+      } catch (_err) {
         // console.log(err)
       }
     })
@@ -374,7 +418,7 @@ class ContestStanding extends React.Component {
             isPollingOn: false,
             loaded: true,
             errors: err.response && err.response.data,
-          });
+          }, () => this.filterStanding());
           toast.error(
             `Standing not available at the moment. (${
               err.response.status || "NETWORK_ERR"
@@ -426,6 +470,9 @@ class ContestStanding extends React.Component {
         this.refetch();
       });
     }
+    if (prevProps.standingFilter !== this.props.standingFilter) {
+      this.filterStanding();
+    }
     this.highlightBestSolutions();
 
     // TODO: Stop fetching if contest is over?
@@ -452,6 +499,109 @@ class ContestStanding extends React.Component {
     })
   }
 
+  generateCSV() {
+    // let csvData = ""
+    const {
+      filterEnabled,
+      filteredRanks,
+      standing,
+      problems,
+      userMapping,
+      probId2idx,
+      isFrozen,
+    } = this.state;
+    const contest = this.context.contest;
+
+    // prep problem_id to label
+    let probId2Label = {};
+    problems.forEach(prob => { probId2Label[prob.id] = prob.label })
+
+    // preparing csv raw data
+    let raw = "frozen,rank,vrank,account,name,org,orgname,score,pen";
+    problems.forEach(prob => {
+      raw += ",";
+      if (prob.label) raw += prob.label;
+    })
+    raw += "\n";
+
+    const appendToCsvRaw = (csv, content, nl=false) => {
+      if (!content) content = "";
+      content = content.replaceAll(",", " ")
+      if (csv) csv +=",";
+      csv += content;
+      if (nl) csv += "\n";
+      return csv;
+    }
+    
+    standing.forEach((part, idx) => {
+      // Check skips
+      if (filterEnabled && filteredRanks[idx] == 0) return; 
+
+      // frozen
+      if (isFrozen) raw += "Y";
+
+      // rank, vrank
+      let rank = idx+1, vrank = idx+1;
+      if (filteredRanks[idx]) vrank = filteredRanks[idx];
+      raw += ",";
+      raw += ""+rank+","+vrank;
+
+      // account, name
+      let fullname = "";
+      if (userMapping[part.user]) {
+        fullname = userMapping[part.user].first_name;
+        if (fullname && userMapping[part.user].last_name) fullname += " ";
+        fullname += userMapping[part.user].last_name;
+      }
+      raw = appendToCsvRaw(raw, part.user)
+      raw = appendToCsvRaw(raw, part.fullname)
+
+      // org, orgname
+      let org = "", orgname = "";
+      if (part.organization) {
+        org=part.organization.slug; orgname=part.organization.name;
+      }
+      raw = appendToCsvRaw(raw, org)
+      raw = appendToCsvRaw(raw, orgname)
+
+      // score, pen
+      let score,pen;
+      if (isFrozen) {
+        score = part.frozen_score; pen = part.frozen_cumtime;
+      } else {
+        score = part.score; pen = part.cumtime;
+      }
+      raw += ","+score+","+pen;
+
+      // problems
+      let data = JSON.parse(part.format_data);
+      let cols = {}
+      Object.keys(data).forEach(probId => {
+        const probLabel = probId2Label[probId] || "?";
+        const prob = probId2idx[probId]
+        if (!prob) return;
+
+        let substat="";
+        if (data[probId].points == 0) substat+="0";
+        else {
+          substat += data[probId].points+"/"+data[probId].tries+"/"+Math.floor(data[probId].sub_time/60);
+        }
+        cols[probLabel] = substat;
+      })
+
+      problems.forEach(prob => {
+        raw += ","
+        if (cols[prob.label]) {
+          raw += cols[prob.label]
+        }
+      })
+      raw += "\n";
+    })
+
+    const blob = new Blob([raw], {type: "application/csv"});
+    fileFromBlob(blob, (contest.key ? `${contest.key}${isFrozen ? "-frozen" : ""}-standing.csv` : "standing.csv"));
+  }
+
   render() {
     const {
       loaded,
@@ -465,11 +615,17 @@ class ContestStanding extends React.Component {
       scoreboardCache,
       iceBroken,
       isPolling,
-    } = this.state;
 
-    let baseFilteredRank = 1;
+      filterEnabled,
+      filteredRanks,
+    } = this.state;
+    const contestId = this.state.contest?.key;
     const contest = this.context.contest;
     const isRegistered = contest.is_registered;
+
+    // Props
+    const standingFilter = this.props.standingFilter[contestId] || {};
+    const { favoriteTeams, } = standingFilter;
 
     return (
       <div className="wrapper-vanilla p-2" id="contest-standing">
@@ -507,7 +663,8 @@ class ContestStanding extends React.Component {
                   className="btn-svg"
                   onClick={() => this.meltingIce()}
                 >
-                  <AiOutlineEye size={20} /> Peek
+                  <AiOutlineEye size={20} /> 
+                  <span className="d-none d-md-block">Peek</span>
                 </Button>
               ) : (
                 <Button
@@ -515,7 +672,8 @@ class ContestStanding extends React.Component {
                   className="btn-svg"
                   onClick={() => this.freezingIce()}
                 >
-                  <GiIceCube size={20} /> Freeze!
+                  <GiIceCube size={20} />
+                  <span className="d-none d-md-block">Freeze!</span>
                 </Button>
               ))}
             {displayMode === "user" ? (
@@ -524,7 +682,8 @@ class ContestStanding extends React.Component {
                 className="btn-svg"
                 onClick={() => this.setState({displayMode: "org"})}
               >
-                <FaUniversity size={20} /> Show
+                <FaUniversity size={20} />
+                <span className="d-none d-md-block">Show</span>
               </Button>
             ) : (
               <Button
@@ -532,25 +691,38 @@ class ContestStanding extends React.Component {
                 className="btn-svg"
                 onClick={() => this.setState({displayMode: "user"})}
               >
-                <FaUniversity size={20} /> Hide
+                <FaUniversity size={20} />
+                <span className="d-none d-md-block">Hide</span>
               </Button>
             )}
             <StandingFilter
               contestId={this.state.contest?.key}
               orgList={this.state.organizations}
             />
-            {isRegistered && (
-              <Button
-                variant="warning"
-                className="ml-auto btn-svg "
-                onClick={() =>
-                  this.scrollToCurrentStanding(this.props.user.username)
+            {
+              loaded && <>
+                <Button
+                  variant="light"
+                  className="ml-auto btn-svg"
+                  onClick={() => this.generateCSV()}
+                >
+                  <BiSpreadsheet size={20} />
+                  <span className="d-none d-md-block">Generate</span>
+                  <span>CSV</span>
+                </Button>
+                { isRegistered && (
+                    <Button
+                      variant="warning"
+                      className="btn-svg "
+                      onClick={() => this.scrollToCurrentStanding(this.props.user.username)}
+                    >
+                      <BiTargetLock size={20} />
+                      <span className="d-none d-md-block">My Standing</span>
+                    </Button>
+                  )
                 }
-              >
-                <BiTargetLock size={20} />
-                <span className="d-none d-sm-block">My Standing</span>
-              </Button>
-            )}
+              </>
+            }
           </div>
         </div>
 
@@ -605,30 +777,16 @@ class ContestStanding extends React.Component {
               </thead>
               <tbody>{
                 standing.map((part, idx) => {
-                  const contestId = this.state.contest?.key;
-                  const standingFilter = this.props.standingFilter[contestId];
-
-                  const {
-                    isOrgFilterEnable,
-                    isFavoriteOnly,
-                    filteredOrg,
-                    favoriteTeams,
-                  } = standingFilter;
-
-                  const isFilterEnable = isOrgFilterEnable || isFavoriteOnly;
-                  const {user} = part;
-                  const isFavorite = favoriteTeams.includes(user);
-
                   let userFilteredRank = undefined;
-                  if (isFilterEnable) {
-                    const orgName = this.state.userMapping[user].organization;
-                    const isShow = (filteredOrg.includes(orgName) && isOrgFilterEnable) || 
-                      (isFavorite && isFavoriteOnly) ;
-                    if (isShow) userFilteredRank = baseFilteredRank++;
-                    else return <></>;
+                  if (filterEnabled) {
+                    userFilteredRank = filteredRanks[idx]
+                    if (!userFilteredRank) return <></>;
                   }
 
+                  const {user} = part;
                   const isHighlight = this.state.highlightUser === user;
+                  const isFavorite = favoriteTeams.includes(user);
+
                   return (
                     <StandingItem
                       key={`ct-st-row-${idx}`}
