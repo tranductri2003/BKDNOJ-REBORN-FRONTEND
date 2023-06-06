@@ -10,6 +10,7 @@ import Tooltip from "react-bootstrap/Tooltip";
 // import { FaPaperPlane } from 'react-icons/fa';
 
 import {SpinLoader, ErrorBox} from "components";
+import ProblemTags from "./ProblemTags";
 
 import problemApi from "api/problem";
 import contestApi from "api/contest";
@@ -49,6 +50,7 @@ class ProblemListItem extends React.Component {
       is_organization_private,
     } = this.props;
     const {contest, label} = this.props;
+    const tags = this.props.tags || [];
 
     const link = contest ? `${shortname}` : `/problem/${shortname}`;
     const rate =
@@ -124,6 +126,7 @@ class ProblemListItem extends React.Component {
                         {mode}
                       </span>
                     </span>
+                    <ProblemTags tags={tags}/>
                   </div>
                   <div className="problem-title">
                     <Link to={link}>{title}</Link>
