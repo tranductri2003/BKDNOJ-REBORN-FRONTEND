@@ -12,6 +12,7 @@ import {SpinLoader, FileUploader, RichTextEditor} from "components";
 
 import UserMultiSelect from "components/SelectMulti/User";
 import OrgMultiSelect from "components/SelectMulti/Org";
+import ProblemTagMultiSelect from "components/SelectMulti/ProblemTag";
 import {qmClarify} from "helpers/components";
 
 class GeneralDetails extends React.Component {
@@ -71,7 +72,12 @@ class GeneralDetails extends React.Component {
 
     // eslint-disable-next-line no-unused-vars
     let {pdf, ...sendData} = this.state.data;
+
+    // clean data
     delete sendData.allowed_languages;
+    delete sendData.tags;
+    sendData.tags = (this.state.data.tags || []).map(tag => tag.id)
+
     let reqs = [];
 
     reqs.push(
@@ -244,6 +250,16 @@ class GeneralDetails extends React.Component {
                   <FileUploader
                     onFileSelectSuccess={file => this.setSelectedPdf(file)}
                     onFileSelectError={({error}) => alert(error)}
+                  />
+                </Col>
+              </Row>
+              <Row>
+                <Form.Label column="sm" xl={12}>
+                  Tags
+                </Form.Label>
+                <Col xl={12}>
+                  <ProblemTagMultiSelect tags={data.tags} 
+                    onChange={newTags => this.setState({data: {...data, tags: newTags}})}
                   />
                 </Col>
               </Row>
