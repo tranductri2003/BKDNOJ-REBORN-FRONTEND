@@ -40,6 +40,8 @@ const ProblemFilterSidebar = (props) => {
     fetch();
   }, []);
 
+  useEffect(() => () => props.clearProblemTags(), []) // Clear problem tags on unmount
+
   useEffect(() => {
     if (selectedTags.length === 0) props.clearProblemTags();
   }, [selectedTags])
