@@ -14,22 +14,22 @@ import {SpinLoader, ErrorBox} from "components";
 import problemTagApi from "api/problem-tag";
 import {setTitle} from "helpers/setTitle";
 import {qmClarify} from "helpers/components";
+import AdminCreateProblemTagModal from "./New"
+import AdminEditProblemTagModal from "./Edit"
 
 import "./List.scss";
 import "styles/ClassicPagination.scss";
 
 const ProblemTagListItem = (props) => {
   const {id, name} = props;
-  const {selectedIds, setSelectedIds} = props;
+  const {setEditingTagId, selectedIds, setSelectedIds} = props;
 
   return (
     <tr>
       <td className="text-truncate" style={{maxWidth: "40px"}}>{id}</td>
       <td className="text-truncate" style={{maxWidth: "100px"}}>{name}</td>
       <td>
-        <Link to="#" onClick={e => alert(e)}>
-          edit
-        </Link>
+        <Link to="#" onClick={() => setEditingTagId(id)}>edit</Link>
       </td>
       <td>
         <input
@@ -48,6 +48,8 @@ const ProblemTagListItem = (props) => {
 const AdminProblemTagList = (props) => {
   const [isLoading, setIsLoading] = useState(true)
   const [errors, setErrors] = useState()
+  const [showModal, setShowModal] = useState(false)
+  const [isEditingTagId, setEditingTagId] = useState(null)
   const [tags, setTags] = useState([])
 
   const [selectedIds, setSelectedIds] = useState([])
@@ -103,7 +105,7 @@ const AdminProblemTagList = (props) => {
             variant="dark"
             className="btn-svg"
             disabled={isLoading}
-            onClick={() => this.setState({redirectUrl: "new"})}
+            onClick={() => setShowModal(true)}
           >
             <AiOutlinePlusCircle />
             <span className="d-none d-md-inline-flex">Add (Form)</span>
@@ -163,7 +165,9 @@ const AdminProblemTagList = (props) => {
             )}
             {!isLoading && tags.length > 0 && (
               tags.map((tag, idx) => <ProblemTagListItem 
-                key={`problem-tag-${idx}`} {...tag} selectedIds={selectedIds} setSelectedIds={setSelectedIds}
+                key={`problem-tag-${idx}`} {...tag} 
+                selectedIds={selectedIds} setSelectedIds={setSelectedIds}
+                setEditingTagId={(v) => setEditingTagId(v)}
               />)
             )}
             {!isLoading && tags.length === 0 && (
@@ -176,6 +180,18 @@ const AdminProblemTagList = (props) => {
           </tbody>
         </Table>
       </div>
+
+      <AdminCreateProblemTagModal 
+        show={showModal}
+        closeModal={() => setShowModal(false)}
+        forceRefetch={() => fetch()}
+      />
+      <AdminEditProblemTagModal 
+        show={!!isEditingTagId}
+        closeModal={() => setEditingTagId(null)}
+        forceRefetch={() => fetch()}
+        id={isEditingTagId}
+      />
     </div>
   )
 }
