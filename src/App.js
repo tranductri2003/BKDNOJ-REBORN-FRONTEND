@@ -33,6 +33,7 @@ import {
   AdminUserNew,
   AdminProblemList,
   AdminProblemDetails,
+  AdminProblemTagList,
   AdminSubmissionList,
   AdminSubmissionDetails,
   AdminJudgeList,
@@ -128,6 +129,11 @@ class App extends React.Component {
                 <Route
                   path="problem/:shortname"
                   element={<OneColumn mainContent={<AdminProblemDetails />} />}
+                />
+
+                <Route
+                  path="problem-tags/"
+                  element={<OneColumn mainContent={<AdminProblemTagList />} />}
                 />
 
                 <Route

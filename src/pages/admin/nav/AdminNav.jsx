@@ -2,8 +2,14 @@ import React from 'react';
 import {connect} from 'react-redux';
 
 import { Link } from 'react-router-dom';
-import { VscAccount, VscOrganization, VscListOrdered, VscFileCode, VscServer
-  } from 'react-icons/vsc';
+import {
+  VscAccount,
+  VscOrganization,
+  VscListOrdered,
+  VscFileCode,
+  VscServer
+} from 'react-icons/vsc';
+import { FaTags } from 'react-icons/fa';
 import { GiTrophyCup } from 'react-icons/gi';
 
 import logo from 'assets/images/bkdnoj-favicon-ring.png';
@@ -54,6 +60,12 @@ class AdminNav extends React.Component {
           <Link to='problems' className='nav-link'>
             <VscListOrdered className='icon'/>
             Problems
+          </Link>
+        </li>
+        <li className='nav-item'>
+          <Link to='problem-tags' className='nav-link'>
+            <FaTags className='icon'/>
+            Problem Tags
           </Link>
         </li>
         <li className='nav-item'>
