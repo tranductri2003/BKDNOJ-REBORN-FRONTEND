@@ -164,7 +164,7 @@ class App extends React.Component {
                   element={<OneColumn mainContent={<AdminJudgeList />} />}
                 />
                 <Route
-                  path="judge/new"
+                  path="judges/new"
                   element={<OneColumn mainContent={<AdminJudgeNew />} />}
                 />
                 <Route
