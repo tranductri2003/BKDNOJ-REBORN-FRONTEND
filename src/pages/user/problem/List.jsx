@@ -22,7 +22,13 @@ import {withParams} from "helpers/react-router";
 import ContestContext from "context/ContestContext";
 
 // Assets
-import {FaGlobe, FaUniversity, FaRegEyeSlash} from "react-icons/fa";
+import {
+  FaGlobe, 
+  FaUniversity, 
+  FaRegEyeSlash,
+  FaFilter,
+} from "react-icons/fa";
+import {TbFilterOff} from "react-icons/tb";
 import {ImBook} from "react-icons/im";
 import {BsPersonFill} from "react-icons/bs";
 
@@ -187,6 +193,10 @@ class ProblemList extends React.Component {
       if (this.props.selectedOrg.slug) {
         prms.org = this.props.selectedOrg.slug;
       }
+      console.log(this.props.problemFilter)
+      if (this.props.problemFilter?.problemTags) {
+        prms.tags = this.props.problemFilter.problemTags.join(',')
+      }
     }
 
     endpoint({...data, params: prms})
@@ -217,7 +227,10 @@ class ProblemList extends React.Component {
   }
 
   componentDidUpdate(prevProps, _prevState) {
-    if (prevProps.selectedOrg !== this.props.selectedOrg) {
+    if (
+      prevProps.selectedOrg !== this.props.selectedOrg ||
+      prevProps.problemFilter !== this.props.problemFilter
+    ) {
       this.callApi();
     }
   }
@@ -228,6 +241,7 @@ class ProblemList extends React.Component {
 
   render() {
     const {loaded, errors, count} = this.state;
+    const isFiltered = !!this.props.problemFilter.problemTags; // TODO: should move 1 level up to be more general
 
     return (
       <div className="problem-table wrapper-vanilla">
@@ -239,6 +253,20 @@ class ProblemList extends React.Component {
         <h4 className="d-flex justify-content-center align-items-center ">
           Problem Set
         </h4>
+        <div className="problem-table-control">
+          <div
+            className="align-items-center problem-filter-icon"
+            data-toggle="tooltip"
+            data-placement="bottom"
+            title={isFiltered ? "Filter is on" : "Filter is off"}
+          >
+            {isFiltered ? (
+              <FaFilter className="text-success" size={18} />
+            ) : (
+              <TbFilterOff className="text-secondary" size={20} />
+            )}
+          </div>
+        </div>
 
         <ErrorBox errors={this.state.errors} />
         <Table responsive hover size="sm" striped bordered className="rounded">
@@ -317,6 +345,7 @@ const mapStateToProps = state => {
   return {
     user: state.user.user,
     selectedOrg: state.myOrg.selectedOrg,
+    problemFilter: state.problemFilter,
   };
 };
 wrapped = connect(mapStateToProps, null)(wrapped);

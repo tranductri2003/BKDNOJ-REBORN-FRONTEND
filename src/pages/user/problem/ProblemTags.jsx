@@ -11,7 +11,6 @@ const TAG_MAX_NOTE_STYLE = {
 
 const ProblemTags = (props) => {
     const tags = props.tags
-    console.log(tags)
     return (
         <div className="problem-tags-container d-inline-flex align-items-end">
             {

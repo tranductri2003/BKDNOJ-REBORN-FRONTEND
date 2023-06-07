@@ -121,4 +121,20 @@ $HEADLINE-HEIGHT: 36px;
     }
   }
 
+  .problem-table-control {
+    position: absolute;
+    right: 0;
+    top: 0;
+
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    height: $HEADLINE-HEIGHT;
+
+    button, div.problem-filter-icon {
+      margin: 3px 4px 2px 0;
+      height: calc($HEADLINE-HEIGHT - 10px);
+      min-width: calc($HEADLINE-HEIGHT - 10px);
+    }
+  }
 }

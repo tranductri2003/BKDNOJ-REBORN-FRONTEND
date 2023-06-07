@@ -50,6 +50,7 @@ import UserApp from "pages/user/UserApp";
 
 // Styles
 import "App.scss";
+import ProblemFilterSidebar from "components/ProblemFilterSidebar";
 
 const history = createBrowserHistory({window});
 
@@ -203,7 +204,14 @@ class App extends React.Component {
 
             <Route
               path="/problems"
-              element={<OneColumn mainContent={<ProblemList />} />}
+              element={
+                <ListSidebar
+                  mainContent={<ProblemList />}
+                  sideComponents={[
+                    <ProblemFilterSidebar key={"ProblemFilterSidebar"} />,
+                  ]}
+                />
+              }
             />
             <Route
               path="/problem/:shortname"

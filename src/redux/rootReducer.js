@@ -7,6 +7,7 @@ import contestReducer from "./Contest/reducer";
 
 import standingFilterReducer from "./StandingFilter/reducer";
 import subFilterReducer from "./SubFilter/reducer";
+import problemFilterReducer from "./ProblemFilter/reducer";
 import recentSubmissionReducer from "./RecentSubmission/reducer";
 
 import ranksReducer from "./Rank/reducer";
@@ -19,6 +20,7 @@ const rootReducer = combineReducers({
   contest: contestReducer,
   recentSubmission: recentSubmissionReducer,
   subFilter: subFilterReducer,
+  problemFilter: problemFilterReducer,
   standingFilter: standingFilterReducer,
   ranks: ranksReducer,
   myOrg: myOrgReducer,
