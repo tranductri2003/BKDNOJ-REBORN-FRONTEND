@@ -8,7 +8,6 @@ const INIT_STATE = {
 };
 
 const reducer = (state = INIT_STATE, action) => {
-  console.log("In reducer", action)
   switch (action.type) {
     case UPDATE_PROBLEM_TAGS: {
       const problemTags = [...action.problemTags]

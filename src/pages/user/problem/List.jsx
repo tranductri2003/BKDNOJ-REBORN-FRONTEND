@@ -193,7 +193,6 @@ class ProblemList extends React.Component {
       if (this.props.selectedOrg.slug) {
         prms.org = this.props.selectedOrg.slug;
       }
-      console.log(this.props.problemFilter)
       if (this.props.problemFilter?.problemTags) {
         prms.tags = this.props.problemFilter.problemTags.join(',')
       }
