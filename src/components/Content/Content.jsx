@@ -62,7 +62,7 @@ class Content extends React.Component {
                   <h5 className="">
                     phase <span className="code-markup">openBETA</span>
                   </h5>
-                  <span className="code-markup">22年10月20日</span>
+                  <span className="code-markup">23年06月25日</span>
                 </div>
               </div>
               <span className="subtext text-center">
