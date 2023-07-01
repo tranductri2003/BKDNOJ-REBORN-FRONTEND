@@ -32,6 +32,7 @@ const ProblemTagMultiSelect = (props) => {
   return (
     <>
       <Select
+        {...props}
         isMulti
         cacheOptions
         isLoading={isLoading}

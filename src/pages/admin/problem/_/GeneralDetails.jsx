@@ -15,6 +15,8 @@ import OrgMultiSelect from "components/SelectMulti/Org";
 import ProblemTagMultiSelect from "components/SelectMulti/ProblemTag";
 import {qmClarify} from "helpers/components";
 
+import {AiOutlineTags} from 'react-icons/ai'
+
 class GeneralDetails extends React.Component {
   constructor(props) {
     super(props);
@@ -22,6 +24,8 @@ class GeneralDetails extends React.Component {
       data: this.props.data,
       selectedPdf: null,
       submitting: false,
+      
+      shouldDisableTags: false,
     };
   }
   componentDidUpdate(prevProps) {
@@ -144,6 +148,26 @@ class GeneralDetails extends React.Component {
     })
   }
 
+  autoTagHandler(e) {
+    e.preventDefault()
+    let conf = window.confirm(
+      "Thao tác này sẽ tự động phân tích các mã nguồn đã AC để tự động gán tags cho bài toán. "+
+      "Việc tự động này có thể sẽ mất thời gian nên sẽ được thực hiện ngầm, và sẽ ghi "+
+      "đề lên các tags có sẵn của bài toán. Bạn có muốn tiếp tục?"
+    )
+    if (!conf) return;
+
+    problemAPI.adminTriggerProblemAutoTag({
+      shortname: this.props.shortname
+    }).then(_res => {
+      toast.success("Thành công. Xin hãy đợi trong giây lát.")
+      this.setState({shouldDisableTags: true})
+    }).catch(err => {
+      console.log(err)
+      toast.error("Có lỗi đã xảy ra.")
+    })
+  }
+
   render() {
     const {data} = this.state;
     return (
@@ -257,10 +281,18 @@ class GeneralDetails extends React.Component {
                 <Form.Label column="sm" xl={12}>
                   Tags
                 </Form.Label>
-                <Col xl={12}>
+                <Col lg={10}>
                   <ProblemTagMultiSelect tags={data.tags} 
+                    isDisabled={this.state.shouldDisableTags}
                     onChange={newTags => this.setState({data: {...data, tags: newTags}})}
                   />
+                </Col>
+                <Col lg={2}>
+                  <Button className="btn-svg d-flex justify-content-center" variant="light"
+                    onClick={e => this.autoTagHandler(e)}>
+                    <span className="d-none d-md-inline">Auto</span>
+                    <AiOutlineTags/>
+                  </Button>
                 </Col>
               </Row>
             </Accordion.Body>
@@ -555,7 +587,9 @@ class GeneralDetails extends React.Component {
         <Row>
           <Col xl={10}></Col>
           <Col className="justify-content-end">
-            <Button variant="dark" size="sm" type="submit" className="btn-svg">
+            <Button variant="dark" size="sm" type="submit" className="btn-svg"
+              disabled={this.state.shouldDisableTags}
+            >
               <FaRegSave /> Save
             </Button>
             {this.state.submitting && (

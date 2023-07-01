@@ -46,6 +46,10 @@ const adminEditProblemDetails = ({shortname, data}) => {
 const adminEditProblemDetailsForm = ({shortname, formData}) => {
   return axiosFormClient.patch(`/problem/${shortname}/`, formData);
 };
+const adminTriggerProblemAutoTag = ({shortname}) => {
+  return axiosClient.post(`/problem/${shortname}/auto-tagging`,);
+};
+
 const adminGetProblemDetailsData = ({shortname}) => {
   return axiosClient.get(`/problem/${shortname}/data/`);
 };
@@ -76,6 +80,8 @@ const problemAPI = {
   adminOptionsProblemDetails,
 
   adminPostProblemFromZip,
+
+  adminTriggerProblemAutoTag,
 
   adminGetProblemDetailsData,
   adminGetProblemDetailsTest,
