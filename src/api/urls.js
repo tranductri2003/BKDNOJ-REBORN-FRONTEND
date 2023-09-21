@@ -6,7 +6,8 @@ const PROD_CONNECTION_URL =
 const getConnectionUrl = () => {
     const test_env = !process.env.NODE_ENV || process.env.NODE_ENV === 'development';
     if (test_env) return TEST_CONNECTION_URL;
-    return PROD_CONNECTION_URL;
+//    return PROD_CONNECTION_URL;
+return `/api/`;
 }
 const getAdminPageUrl = () => {
     return `${getConnectionUrl()}admin/`

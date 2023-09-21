@@ -1,19 +1,19 @@
 import React from "react";
-import {connect} from "react-redux";
+import { connect } from "react-redux";
 import ReactPaginate from "react-paginate";
-import {Link, Navigate} from "react-router-dom";
-import {Table, Row, Col, Button} from "react-bootstrap";
+import { Link, Navigate } from "react-router-dom";
+import { Table, Row, Col, Button } from "react-bootstrap";
 // import { FaPaperPlane } from 'react-icons/fa';
 
-import {SpinLoader, ErrorBox} from "components";
+import { SpinLoader, ErrorBox } from "components";
 import orgAPI from "api/organization";
 
 // Helpers
-import {setTitle} from "helpers/setTitle";
-import {withParams} from "helpers/react-router";
+import { setTitle } from "helpers/setTitle";
+import { withParams } from "helpers/react-router";
 
 // Contexts
-import {toast} from "react-toastify";
+import { toast } from "react-toastify";
 
 // Styles
 import "styles/ClassicPagination.scss";
@@ -39,7 +39,7 @@ class OrgItem extends React.Component {
   }
 
   render() {
-    const {slug, name, logo_url, suborg_count, is_open, is_unlisted} =
+    const { slug, name, logo_url, suborg_count, is_open, is_unlisted } =
       this.props.org;
 
     return (
@@ -134,8 +134,8 @@ class OrgList extends React.Component {
     };
   }
 
-  refetch(params = {page: 0}) {
-    this.setState({loaded: false, errors: null});
+  refetch(params = { page: 0 }) {
+    this.setState({ loaded: false, errors: null });
     const slug =
       this.state.path.length === 0
         ? null
@@ -144,7 +144,7 @@ class OrgList extends React.Component {
     orgAPI
       .getOrgs({
         slug: slug,
-        params: {page: params.page + 1},
+        params: { page: params.page + 1 },
       })
       .then(res => {
         this.setState({
@@ -169,18 +169,18 @@ class OrgList extends React.Component {
 
   componentDidUpdate(_prevProps, _prevState) {
     if (this.props.path !== this.state.path) {
-      this.setState({path: this.props.path}, () => {
+      this.setState({ path: this.props.path }, () => {
         this.refetch();
       });
     }
   }
 
   handlePageClick = event => {
-    this.refetch({page: event.selected});
+    this.refetch({ page: event.selected });
   };
 
   render() {
-    const {loaded, errors, orgs, count} = this.state;
+    const { loaded, errors, orgs, count } = this.state;
 
     return (
       <div className="org-table">
@@ -197,7 +197,7 @@ class OrgList extends React.Component {
           >
             <tbody className="w-100">
               {!loaded ? (
-                <tr style={{height: "200px"}}>
+                <tr style={{ height: "200px" }}>
                   <td colSpan="99">
                     <SpinLoader margin="10px" />
                   </td>
@@ -221,7 +221,7 @@ class OrgList extends React.Component {
                         />
                       ))
                     ) : (
-                      <tr style={{height: "200px"}}>
+                      <tr style={{ height: "200px" }}>
                         <td colSpan={99}>
                           <em>No orgs are available yet.</em>
                         </td>
@@ -269,14 +269,14 @@ class OrgDetail extends React.Component {
   }
 
   fetch() {
-    this.setState({loaded: false, errors: null});
+    this.setState({ loaded: false, errors: null });
     orgAPI
-      .getOrg({slug: this.state.slug})
+      .getOrg({ slug: this.state.slug })
       .then(res => {
-        this.setState({loaded: true, org: res.data});
+        this.setState({ loaded: true, org: res.data });
       })
       .catch(err => {
-        this.setState({loaded: true, errors: err.response.data});
+        this.setState({ loaded: true, errors: err.response.data });
       });
   }
 
@@ -285,21 +285,21 @@ class OrgDetail extends React.Component {
   }
   componentDidUpdate() {
     if (this.state.slug !== this.props.slug) {
-      this.setState({slug: this.props.slug}, () => this.fetch());
+      this.setState({ slug: this.props.slug }, () => this.fetch());
     }
   }
 
   onJoinClick() {
-    const {org, slug} = this.state;
+    const { org, slug } = this.state;
     if (org.is_protected) {
       const code = window.prompt(
         `Tổ chức này cần mã truy cập để gia nhập.\n` +
-          (org.access_code_prompt ? `${org.access_code_prompt}\n` : "") +
-          "Code:"
+        (org.access_code_prompt ? `${org.access_code_prompt}\n` : "") +
+        "Code:"
       );
       if (code === null) return;
       orgAPI
-        .joinOrg({slug, data: {access_code: code}})
+        .joinOrg({ slug, data: { access_code: code } })
         .then(() => {
           toast.success(`Welcome to ${slug}.`);
           this.fetch();
@@ -314,7 +314,7 @@ class OrgDetail extends React.Component {
       if (!conf) return;
 
       orgAPI
-        .joinOrg({slug})
+        .joinOrg({ slug })
         .then(() => {
           toast.success(`Welcome to ${slug}.`);
           this.fetch();
@@ -327,12 +327,12 @@ class OrgDetail extends React.Component {
     }
   }
   onLeaveClick() {
-    const {slug} = this.state;
+    const { slug } = this.state;
     const conf = window.confirm(`Rời khỏi tổ chức ${slug}?`);
     if (!conf) return;
 
     orgAPI
-      .leaveOrg({slug})
+      .leaveOrg({ slug })
       .then(() => {
         toast.success(`Đã rời khỏi ${slug}.`);
         this.fetch();
@@ -347,15 +347,15 @@ class OrgDetail extends React.Component {
     if (this.state.redirectUrl)
       return <Navigate to={`${this.state.redirectUrl}`} />;
 
-    const {slug, loaded, errors, org} = this.state;
-    const {user} = this.props;
+    const { slug, loaded, errors, org } = this.state;
+    const { user } = this.props;
 
     const isLoggedIn = user !== null;
     const isStaff = isLoggedIn && user.is_staff;
 
     return (
-      <div className="org-detail-wrapper border" style={{position: "relative"}}>
-        <div style={{position: "absolute", right: 5, top: 5, width: "30px"}}>
+      <div className="org-detail-wrapper border" style={{ position: "relative" }}>
+        <div style={{ position: "absolute", right: 5, top: 5, width: "30px" }}>
           <Button
             className="btn-svg"
             variant="secondary"
@@ -371,7 +371,7 @@ class OrgDetail extends React.Component {
               variant="danger"
               size="sm"
               onClick={() =>
-                this.setState({redirectUrl: `/admin/org/${slug}/`})
+                this.setState({ redirectUrl: `/admin/org/${slug}/` })
               }
             >
               {" "}
@@ -420,7 +420,7 @@ class OrgDetail extends React.Component {
                 <code>{org.slug}</code> | {org.short_name}
               </h6>
               <h6 className="mb-1">{org.name}</h6>
-              <span className="float-right" style={{fontSize: "12px"}}>
+              <span className="float-right" style={{ fontSize: "12px" }}>
                 <em>Created {new Date(org.creation_date).toLocaleString()}</em>
               </span>
             </div>
@@ -439,7 +439,7 @@ class OrgDetail extends React.Component {
             <div className="org-detail-item border">
               <h6 className="m-0">Organization Admins</h6>
               {org.admins.length === 0 ? (
-                <div style={{height: "50px"}} className="flex-center">
+                <div style={{ height: "50px" }} className="flex-center">
                   <em>Currently there is no one.</em>
                 </div>
               ) : (
@@ -490,7 +490,7 @@ class OrgDetail extends React.Component {
                   className="btn-svg"
                   size="sm"
                   variant="secondary"
-                  onClick={() => this.setState({redirectUrl: "/sign-in"})}
+                  onClick={() => this.setState({ redirectUrl: "/sign-in" })}
                 >
                   Sign In to Join <FaSignInAlt size={12} />
                 </Button>
@@ -516,10 +516,10 @@ class OrgMain extends React.Component {
   }
 
   selectOrg(slug) {
-    this.setState({selectedOrg: slug});
+    this.setState({ selectedOrg: slug });
   }
   deselectOrg() {
-    this.setState({selectedOrg: null});
+    this.setState({ selectedOrg: null });
   }
 
   componentDidMount() {
@@ -527,7 +527,7 @@ class OrgMain extends React.Component {
   }
 
   render() {
-    const {path, selectedOrg, errors} = this.state;
+    const { path, selectedOrg, errors } = this.state;
 
     return (
       <div className="wrapper-vanilla" id="org-main">
@@ -537,7 +537,7 @@ class OrgMain extends React.Component {
           </Col>
           <Col
             className="org-path"
-            style={{width: "100%", heigth: "100%", overflow: "hidden"}}
+            style={{ width: "100%", heigth: "100%", overflow: "hidden" }}
           >
             <div
               style={{
@@ -551,7 +551,7 @@ class OrgMain extends React.Component {
               <div className="org-path-item">
                 <Link
                   to="#"
-                  onClick={() => this.setState({path: []})}
+                  onClick={() => this.setState({ path: [] })}
                   className="text-dark"
                 >
                   <FaGlobe size={ORG_PATH_IMG_SIZE} />
@@ -571,7 +571,7 @@ class OrgMain extends React.Component {
                         className="d-inline-flex justify-content-center align-items-center text-dark"
                         to="#"
                         onClick={() => {
-                          this.setState({path: path.slice(0, idx + 1)});
+                          this.setState({ path: path.slice(0, idx + 1) });
                         }}
                       >
                         {org.logo_url ? (
@@ -614,7 +614,7 @@ class OrgMain extends React.Component {
               deselectOrg={() => this.deselectOrg()}
               path={path}
               pushToPath={newOrg => {
-                this.setState({path: path.concat(newOrg)});
+                this.setState({ path: path.concat(newOrg) });
               }}
             />
           </Col>
@@ -636,7 +636,7 @@ class OrgMain extends React.Component {
 let wrappedPD = OrgMain;
 wrappedPD = withParams(wrappedPD);
 const mapStateToProps = state => {
-  return {user: state.user.user};
+  return { user: state.user.user };
 };
 wrappedPD = connect(mapStateToProps, null)(wrappedPD);
 export default wrappedPD;
